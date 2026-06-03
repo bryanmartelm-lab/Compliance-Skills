@@ -1,0 +1,13 @@
+{
+  "name": "kyb",
+  "version": "0.1.0",
+  "description": "Run a KYB document completeness review on a local folder or zip of documents. Produces a reviewer report (markdown) and structured JSON. Runs entirely on your own Claude — no external services, no Slack.",
+  "author": {
+    "name": "Bryan Martel",
+    "url": "https://github.com/bryanmartelm-lab/Compliance-Skills"
+  },
+  "homepage": "https://github.com/bryanmartelm-lab/Compliance-Skills",
+  "repository": "https://github.com/bryanmartelm-lab/Compliance-Skills",
+  "license": "UNLICENSED",
+  "keywords": ["kyb", "compliance", "due-diligence", "review", "onboarding"]
+}

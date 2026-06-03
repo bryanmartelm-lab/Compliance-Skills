@@ -1,0 +1,12 @@
+# Reviewer output and extracted documents — never commit customer data
+kyb-reviews/
+**/kyb-reviews/
+**/_extracted/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

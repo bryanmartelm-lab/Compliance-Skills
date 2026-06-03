@@ -1,0 +1,18 @@
+{
+  "name": "kyb-tools",
+  "owner": {
+    "name": "Bryan Martel",
+    "url": "https://github.com/bryanmartelm-lab/Compliance-Skills"
+  },
+  "description": "KYB (Know Your Business) review tooling — portable completeness-review engine for partner reviewers.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "kyb",
+      "source": "./plugins/kyb",
+      "description": "Run a KYB document completeness review on a folder or zip and get a reviewer report + structured JSON. Bring your own Claude.",
+      "category": "compliance",
+      "keywords": ["kyb", "compliance", "due-diligence", "review", "onboarding"]
+    }
+  ]
+}
