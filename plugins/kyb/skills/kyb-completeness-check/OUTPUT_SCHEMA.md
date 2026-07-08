@@ -211,7 +211,8 @@ Structure:
   "proof_of_address": {
     "status": "SUPPORTED | PARTIAL | NOT_SUPPORTED | CONTRADICTED",
     "evidence": ["string"],
-    "gap": "string | null"
+    "gap": "string | null",
+    "poa_check": { "see PROOF OF ADDRESS WORKSHEET below — MANDATORY" }
   }
 }
 ```
@@ -225,6 +226,39 @@ Rules:
 - `proof_of_address` is always required in this model
 - each claim evidence list must include only the files actually relied on for that UBO claim
 - where a UBO claim is not supported due to readability, language, format, or extraction limitations, the `gap` must state that reason explicitly
+
+---
+
+## PROOF OF ADDRESS WORKSHEET (poa_check) — MANDATORY
+
+Every `proof_of_address` claim — the `company_proof_of_address` business claim AND each
+UBO's `proof_of_address` — MUST carry a `poa_check` object. The status is DERIVED from this
+worksheet; it may not be asserted without it. A review is invalid and must not be finalized
+if any PoA is missing this block or its status contradicts it.
+
+```json
+{
+  "evidence_quote": "verbatim masthead/title from the document (issuer + document name)",
+  "document_type": "what the document ACTUALLY is, by content",
+  "accepted_type": "utility_bill | bank_statement | government_letter | lease_tenancy | NONE",
+  "subject_name": "name printed on the document",
+  "address_shown": "address printed on the document (or 'ADDRESS NOT SHOWN')",
+  "address_type": "business | residential | none",
+  "recency_status": "pass | fail"
+}
+```
+
+Gate order is enforced and non-negotiable:
+
+1. **Gate 1 — TYPE FIRST.** Map `document_type` to `accepted_type` using the closed
+   allow-list. Anything not a utility bill / bank statement / government letter / lease-tenancy
+   is `accepted_type = NONE`. `evidence_quote` must ground this in the document's own words.
+2. If `accepted_type = NONE` → `status` MUST be `NOT_SUPPORTED`, regardless of name/address/recency.
+3. Only if Gate 1 passes do the attributes matter: a company PoA needs `address_type = business`,
+   a UBO PoA needs `address_type = residential`, and `recency_status = pass`, for `status = SUPPORTED`.
+
+A document whose `evidence_quote` self-identifies as a licence / certificate / invoice /
+memorandum / register is NOT a proof of address — `accepted_type` must be `NONE`.
 
 ---
 

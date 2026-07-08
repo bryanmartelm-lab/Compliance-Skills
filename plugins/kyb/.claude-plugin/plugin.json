@@ -1,6 +1,6 @@
 {
   "name": "kyb",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Run a KYB document completeness review on a local folder or zip of documents. Produces a reviewer report (markdown) and structured JSON. Runs entirely on your own Claude — no external services, no Slack.",
   "author": {
     "name": "Bryan Martel",

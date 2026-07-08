@@ -50,6 +50,47 @@ Absence of valid evidence = NOT_SUPPORTED
 
 The engine must evaluate actual file content, not filenames alone.
 
+## DELEGATION — ALLOWED, BUT EQUIPPED AND VERIFIED
+
+Subagents MAY read documents to conserve the orchestrator's context. But
+delegation is only valid if all three of these hold — otherwise do it inline:
+
+1. **Equip the subagent with the rules.** Use a dedicated document-reader subagent
+   whose instructions direct it to read this SKILL.md and OUTPUT_SCHEMA.md in full and
+   apply the DOCUMENT-TYPE VERIFICATION and gating sections. Do NOT restate the traps
+   inline — this rulebook is the single source of truth.
+2. **Demand an auditable evidence log.** The subagent must return, per claim, the
+   exact file relied on, that file's ACTUAL document type (by content), and the key
+   facts read. A bare status with no per-document evidence is rejected.
+3. **The orchestrator verifies before finalizing.** Never accept a subagent's
+   FULL or PARTIAL at face value. For any non-NO_GO outcome, the orchestrator MUST
+   independently open and confirm the decision-critical documents — certificate of
+   incorporation / licence, the full ownership chain (incl. any holding-company docs),
+   and every proof of address — against the subagent's claims. If a classification
+   can't be confirmed, the claim is NOT_SUPPORTED.
+
+A subagent summary is a lead to verify, never the basis for a determination.
+
+## DOCUMENT-TYPE VERIFICATION (mandatory, content-based)
+
+Confirm each document IS the type its claim needs, by its actual content — not its filename:
+- A **Certificate of Incorporation** must be a registry-issued certificate. A
+  Memorandum & Articles of Association, share register, or formation deed is NOT
+  a certificate of incorporation. If only those are present → company_exists NOT_SUPPORTED (hard).
+- **UAE free-zone entities** require BOTH a certificate of incorporation/formation
+  AND a valid trade/commercial licence. A licence *number* printed on another doc
+  is not the licence. Missing either → hard gap.
+- A **Proof of Address** must be an acceptable type: utility bill, bank statement,
+  or government letter (point-in-time, ≤90 days), or lease/tenancy (duration-based,
+  not expired). An **invoice — including a Regus/virtual-office invoice — is NOT a
+  valid PoA**, regardless of name/address/date.
+- A **self-certified ownership chart** (signed by the applicant) does NOT evidence
+  beneficial ownership. When the direct shareholder is a company (a holding company),
+  you MUST obtain that company's corporate documents (incorporation + register of
+  members) AND KYC on its beneficial owners. Missing → UBO link NOT_SUPPORTED (hard).
+  Treat internal inconsistencies in such a chart (e.g. wrong entity name) as a reason
+  to distrust it, not "minor labeling."
+
 For each uploaded item, the engine must:
 
 1. Open the file
@@ -190,6 +231,28 @@ Read only the human-readable printed fields on the document.
 
 ---
 
+## ACCEPTABLE CAPTURE MEDIUM (PHOTO ONLY — HARD RULE)
+
+An identity document (passport, national ID card, driver's licence, residence
+permit) is acceptable **only as an original photograph of the physical document**.
+
+The following are **NOT accepted**, even if the name and DOB are perfectly legible:
+- a flatbed/scanner **scan** of the document or an open passport booklet
+- a **photocopy** (including a photo *of* a photocopy)
+- a **screenshot** or a digitally re-rendered / re-printed copy
+
+Tells of a scan/copy rather than a photo: pure-white flat background with no
+surface curvature or hand/shadow, scanner-bed edges, the full open booklet laid
+perfectly flat, monochrome/greyscale reproduction, moiré/print-dot texture.
+A genuine photo shows the physical document with natural lighting, slight
+perspective, corners and edges of the real card/booklet.
+
+Requirement: all four corners visible, original colour, original physical document.
+
+This rule is a **hard gate on the identity claim** — see VALIDATION OUTCOME.
+
+---
+
 ## HOW TO READ PRINTED FIELDS
 
 ### Name
@@ -209,6 +272,13 @@ Read only the human-readable printed fields on the document.
 ---
 
 ## VALIDATION OUTCOME
+
+If the document is a scan, photocopy, or screenshot rather than an original
+photograph (see ACCEPTABLE CAPTURE MEDIUM):
+→ identity claim = `NOT_SUPPORTED` regardless of legibility, name, or DOB
+→ add a missing item requesting a clear original **photo** of the document
+  (front + back where applicable, all four corners visible, no scan/copy)
+→ this is checked FIRST, before name/DOB — a scan/copy cannot be SUPPORTED
 
 If name and DOB both match system data:
 → identity claim = `SUPPORTED`
@@ -327,6 +397,43 @@ Must:
 Must:
 - identify directors/control persons
 - be supported
+
+---
+
+## US Tax IDs — EIN (company) + SSN/ITIN (US-resident UBO) (REQUIRED)
+
+Two US tax IDs are ALWAYS required. **Both are tax / identity evidence ONLY —
+neither one evidences ownership.**
+
+1. **Company — IRS EIN assignment notice** (CP575, or the equivalent 147C
+   confirmation letter) for ANY US-incorporated entity. Evidences the company's
+   federal tax registration.
+2. **US-resident / US-person UBO — Tax ID**: an **SSN**, or an **ITIN** for a UBO
+   ineligible for an SSN. Required for every US-resident/US-person beneficial owner.
+
+- If either is missing → request it. Treat as a soft gap (PARTIAL) on its own
+  (tax / identity evidence missing).
+- **The EIN does NOT prove ownership.** The notice names only a "responsible
+  party" — per the IRS, whoever *controls/manages* the entity and its funds, which
+  is NOT the same as an owner and carries no ownership percentages. Do not treat
+  the EIN (or the SSN/ITIN) as ownership evidence.
+
+### Ownership evidence (SEPARATE from tax IDs)
+
+US LLC members are NOT published in any public registry (NY, NM, and others name
+no members on the Articles/Certificate). Ownership must therefore come from the
+company's own ownership records:
+
+- **LLC:** the **Operating Agreement** (lists members + their membership
+  interests/%) TOGETHER WITH a **signed, dated member register / membership
+  certificate**; for **multi-member** LLCs, an **IRS Schedule K-1 (Form 1065)**
+  corroborates each member's allocation.
+- **Corporation (Inc.):** the **stock ledger / share register** plus **share
+  certificates**.
+
+A self-produced Operating Agreement and/or self-made org chart ALONE is
+self-certified and does NOT satisfy `ownership_100`. Without independent ownership
+records as above → `ownership_100` = NOT_SUPPORTED (hard).
 
 ---
 
