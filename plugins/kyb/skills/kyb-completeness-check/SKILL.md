@@ -55,8 +55,9 @@ The engine must evaluate actual file content, not filenames alone.
 Subagents MAY read documents to conserve the orchestrator's context. But
 delegation is only valid if all three of these hold — otherwise do it inline:
 
-1. **Equip the subagent with the rules.** Use a dedicated document-reader subagent
-   whose instructions direct it to read this SKILL.md and OUTPUT_SCHEMA.md in full and
+1. **Equip the subagent with the rules.** Use the plugin's `kyb-document-reviewer` agent
+   (or an equivalent dedicated document-reader subagent), whose instructions direct it to
+   read this SKILL.md and OUTPUT_SCHEMA.md in full and
    apply the DOCUMENT-TYPE VERIFICATION and gating sections. Do NOT restate the traps
    inline — this rulebook is the single source of truth.
 2. **Demand an auditable evidence log.** The subagent must return, per claim, the
@@ -82,8 +83,9 @@ Confirm each document IS the type its claim needs, by its actual content — not
   is not the licence. Missing either → hard gap.
 - A **Proof of Address** must be an acceptable type: utility bill, bank statement,
   or government letter (point-in-time, ≤90 days), or lease/tenancy (duration-based,
-  not expired). An **invoice — including a Regus/virtual-office invoice — is NOT a
-  valid PoA**, regardless of name/address/date.
+  not expired). A **home internet bill or an office internet bill counts as a utility
+  bill** — see ACCEPTED PoA DOCUMENT TYPES below. An **invoice — including a
+  Regus/virtual-office invoice — is NOT a valid PoA**, regardless of name/address/date.
 - A **self-certified ownership chart** (signed by the applicant) does NOT evidence
   beneficial ownership. When the direct shareholder is a company (a holding company),
   you MUST obtain that company's corporate documents (incorporation + register of
@@ -385,6 +387,49 @@ Must show:
 
 ---
 
+## Constitutional Documents (ALWAYS REQUESTED — EVERY REVIEW)
+
+The certificate of incorporation proves the company EXISTS. It does not establish how the company
+is constituted or what its share structure is. The constitutional document is a SEPARATE, ALWAYS
+REQUIRED item. Request it in every review, naming the correct instrument for the jurisdiction and
+company type — never as a generic "articles".
+
+Common equivalents (name the local instrument; this list is not exhaustive):
+
+| Jurisdiction / company type | Instrument to request |
+|---|---|
+| UK Ltd / PLC | Articles of Association — the ACTUAL articles; "model articles adopted" is not the document — plus the Memorandum of Association |
+| US LLC | Operating Agreement + Articles of Organization / Certificate of Formation |
+| US Corporation (Inc.) | Articles / Certificate of Incorporation + Bylaws |
+| Canada — British Columbia | Incorporation Application + Notice of Articles + Articles |
+| Canada — federal (CBCA) and other provinces | Articles of Incorporation + By-laws |
+| Mexico — S.A. de C.V. / S. de R.L. | Acta constitutiva containing the estatutos sociales |
+| Brazil | Contrato Social with all alterações (Ltda) / Estatuto Social (S.A.) |
+| UAE — free zone and mainland | Memorandum & Articles of Association |
+| Hong Kong | Articles of Association |
+| Singapore | Constitution |
+| Nigeria | MEMART (Memorandum and Articles of Association) |
+| India | Memorandum of Association + Articles of Association |
+| Portugal / Spain / civil-law EU | Pacto social / estatutos |
+| Marshall Islands and offshore IBCs | Articles of Incorporation + Bylaws |
+
+Two rules govern how it is used. They cut in opposite directions and both must be applied:
+
+1. **It is NOT ownership evidence.** A constitutional document sets out the AUTHORISED share
+   structure — classes, maximum numbers, rights and transfer restrictions. It does not name
+   holders. Ownership still requires a register of members / central securities register / share
+   ledger / cap table. Never infer a percentage from authorised shares.
+2. **Ownership evidence does NOT replace it.** Without the authorised share structure the class
+   structure is unknown, and a holding described as "100%" cannot be assessed for control where
+   more than one class may exist. A register read without the constitution can materially
+   misstate control.
+
+**Gating: SOFT.** Absence is a soft gap → `PARTIAL`, recorded in `soft_failures` and in
+`missing_items.company`. It does not by itself produce `NO_GO`. Where its absence ALSO means
+ownership cannot be established, `ownership_100` fails on its own hard footing — score both.
+
+---
+
 ## Corporate Structure
 Must:
 - account for 100% ownership
@@ -437,6 +482,31 @@ records as above → `ownership_100` = NOT_SUPPORTED (hard).
 
 ---
 
+## Financial Statements (ALWAYS REQUESTED — NOTE ONLY, NEVER A GATE)
+
+Banking partners commonly require company financial statements before they will enable USD /
+SWIFT rails. A completeness review usually happens BEFORE the package reaches any provider, so
+the reviewer cannot know which rails the business will end up needing. Therefore financials are
+requested in EVERY review, as a standard item — never conditionally, never only "if SWIFT is
+requested".
+
+Acceptable (ANY ONE of):
+- balance sheet
+- income statement
+- profit & loss (P&L)
+
+**Gating: NONE.** This is the only required item in this rulebook that does not gate.
+- Absence is NEVER a hard failure and NEVER a soft failure.
+- It must NOT appear in `hard_failures` or `soft_failures`.
+- It must NOT change `review_outcome`, `access_tier`, or `controls`.
+- A package satisfying everything else is still `FULL` when financials are absent.
+
+When absent, report it — do not silently drop it:
+- `notes` → `No financial statements provided (commonly required by banking partners for USD / SWIFT rails)`
+- `missing_items.company` → `Financial statements (balance sheet, income statement, or P&L)`
+
+---
+
 # PROOF OF ADDRESS POLICY (CRITICAL)
 
 Proof of Address is ALWAYS REQUIRED for:
@@ -444,6 +514,35 @@ Proof of Address is ALWAYS REQUIRED for:
 - Each UBO
 
 However, impact differs:
+
+---
+
+## ACCEPTED PoA DOCUMENT TYPES (CLOSED ALLOW-LIST — GATE 1)
+
+A Proof of Address is valid ONLY if it is one of these:
+
+- **utility bill** — electricity, gas, water, **or an internet connection**
+- **bank statement**
+- **government letter** issued to the subject
+- **lease / tenancy agreement**
+
+### Internet bills
+
+A **home internet bill** and an **office internet bill** are both accepted, and both map to
+`accepted_type = utility_bill`. The service is delivered over a fixed line to specific premises,
+so the bill evidences the address of those premises.
+
+- **Individual (UBO PoA)** → a **home** internet bill, and it must be **in that individual's name**.
+- **Company (company PoA)** → an **office / business** internet bill, and it must be **in the
+  company's name**.
+
+Subject binding is not relaxed by this rule. An internet bill in a director's personal name is not
+a company proof of address, and a bill in the company's name is not a UBO proof of address. A
+bundled package (internet plus a fixed telephone line, plus TV) is still accepted — the fixed
+service to the premises is what carries the address.
+
+A **mobile** subscription is NOT accepted: it follows the person rather than a premises, so the
+address printed on it is a correspondence preference, not evidence of residence or occupation.
 
 ---
 
@@ -493,7 +592,8 @@ Must:
 
 ### Recency Rule by Document Type
 
-**Point-in-time documents** (utility bill, bank statement, government letter):
+**Point-in-time documents** (utility bill — including a home or office internet bill — bank
+statement, government letter):
 - must be dated ≤ 90 days from review date
 
 **Duration-based documents** (lease agreement, tenancy contract, office license):
@@ -615,7 +715,12 @@ Evaluation order (MANDATORY):
 
 - Company Proof of Address issues
 - Corporate documents outdated (>6 months)
+- Constitutional document missing (articles / memorandum / operating agreement or local equivalent)
 - Source of Funds missing/incomplete
+
+Missing financial statements are NOT soft gating. They are note-only — see
+**Financial Statements** above. Do not add them to `soft_failures` and do not
+downgrade an outcome because of them.
 
 ---
 

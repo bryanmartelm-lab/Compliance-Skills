@@ -66,6 +66,9 @@ For each UBO in ubo_claims:
 ## Contradictions
 - [item] / None
 
+## Notes (non-gating)
+- [item] / None
+
 ## Missing Items
 **Company**
 - [item] / None
@@ -83,7 +86,7 @@ For each UBO in ubo_claims:
 Rules for Part A:
 - All sections always present, even when the value is None.
 - Summary: max 3 bullets, decision-drivers only — no "review completed" filler.
-- Every missing item must correspond to a failure listed above it.
+- Every missing item must correspond to a failure or a note listed above it.
 - List ALL identified UBOs individually; at least one UBO line must appear.
 
 ---
@@ -102,6 +105,10 @@ All required documents have been received. No further action is needed from your
 
 _This is a document completeness check only. Final compliance review is still pending._
 ```
+
+A FULL outcome needs no request block — **unless** financial statements are outstanding. They do
+not affect the outcome but are still requested, so a FULL message may carry that single block
+(see the financial statements wording below) in place of "No further action is needed".
 
 ## PARTIAL
 
@@ -146,6 +153,15 @@ _This is a document completeness check only. Final compliance review is still pe
 - **Wrong subject / wrong name** → "the document provided appears to be in a different name" + "please send [document] in the correct name"
 - **Outdated** → "the document provided is outdated" + "please send an updated version dated within [period]"
 - **Unreadable** → "the document provided could not be reviewed clearly" + "please resend a clear, complete version"
+
+## Financial statements (standard request — use this wording)
+
+```
+**Financial Statements**
+- please send your company financial statements
+- a balance sheet, income statement, or profit & loss (P&L) is fine — any one of these
+- these are needed to enable international payment rails later in the process
+```
 
 Client-request constraints:
 - Specific, short, supportive. Bullets, not email prose. No greetings, no "if you have questions".

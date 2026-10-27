@@ -57,6 +57,7 @@ This schema is the output contract between:
   "hard_failures": [],
   "soft_failures": [],
   "contradictions": [],
+  "notes": [],
   "missing_items": {
     "company": [],
     "ubos": []
@@ -253,6 +254,10 @@ Gate order is enforced and non-negotiable:
 1. **Gate 1 — TYPE FIRST.** Map `document_type` to `accepted_type` using the closed
    allow-list. Anything not a utility bill / bank statement / government letter / lease-tenancy
    is `accepted_type = NONE`. `evidence_quote` must ground this in the document's own words.
+   A **home internet bill** (individual) or an **office internet bill** (company) is a
+   `utility_bill` — the service reaches fixed premises, so it evidences that address. It must
+   still be in the correct subject's name: the individual's for a UBO PoA, the company's for a
+   company PoA. A **mobile** subscription is not accepted. See SKILL.md, ACCEPTED PoA DOCUMENT TYPES.
 2. If `accepted_type = NONE` → `status` MUST be `NOT_SUPPORTED`, regardless of name/address/recency.
 3. Only if Gate 1 passes do the attributes matter: a company PoA needs `address_type = business`,
    a UBO PoA needs `address_type = residential`, and `recency_status = pass`, for `status = SUPPORTED`.
@@ -294,6 +299,27 @@ Examples:
 Rules:
 
 - If `soft_failures` is non-empty and `hard_failures` is empty → output may be `PARTIAL`
+- If none → `[]`
+- Missing financial statements must NEVER appear here — they are note-only (see `notes`)
+
+---
+
+## notes
+
+List of strings recording items that must be surfaced but that do **not** gate the outcome.
+
+A note never influences `review_outcome`, `access_tier` or `controls`. It exists so a
+non-gating gap is stated plainly instead of being silently dropped or wrongly escalated
+into `soft_failures`.
+
+Current note-only items:
+
+- `No financial statements provided (commonly required by banking partners for USD / SWIFT rails)`
+
+Rules:
+
+- A `notes` entry must never also appear in `hard_failures` or `soft_failures`
+- Presence of notes alone must still allow `review_outcome = FULL`
 - If none → `[]`
 
 ---
@@ -468,6 +494,11 @@ Then:
 - `controls.weekly_cap = null`
 - `controls.monthly_cap = null`
 - `controls.monitoring_level = LEVEL_0`
+
+`notes` is deliberately absent from this list. A non-empty `notes` array does not block
+`FULL`. `missing_items.company` may therefore be non-empty on a `FULL` outcome when the
+only outstanding item is note-only (financial statements) — that item is still requested
+from the client.
 
 ## 6. UNKNOWN HANDLING
 
@@ -649,10 +680,14 @@ If multiple soft issues apply:
     "Source of funds missing"
   ],
   "contradictions": [],
+  "notes": [
+    "No financial statements provided (commonly required by banking partners for USD / SWIFT rails)"
+  ],
   "missing_items": {
     "company": [
       "Company proof of address dated within the last 90 days",
-      "Source of funds documentation"
+      "Source of funds documentation",
+      "Financial statements (balance sheet, income statement, or P&L)"
     ],
     "ubos": [
       {
@@ -748,9 +783,13 @@ If multiple soft issues apply:
   "contradictions": [
     "John Smith listed as 100% owner in one document and Anna White listed as 100% owner in another"
   ],
+  "notes": [
+    "No financial statements provided (commonly required by banking partners for USD / SWIFT rails)"
+  ],
   "missing_items": {
     "company": [
-      "Clarified and consistent ownership structure documentation accounting for 100% ownership"
+      "Clarified and consistent ownership structure documentation accounting for 100% ownership",
+      "Financial statements (balance sheet, income statement, or P&L)"
     ],
     "ubos": [
       {
