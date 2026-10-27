@@ -47,6 +47,9 @@ Read these bundled files in full before judging anything:
 - Apply hard vs soft gating and subject-binding rules exactly. **Do not rationalize** around the
   rules (see lessons).
 - Produce the structured result that conforms to `OUTPUT_SCHEMA.md` (this JSON is the source of truth).
+- For large packages you may delegate document reading to the `kyb-document-reviewer` agent.
+  Pass it the absolute paths of `SKILL.md` and `OUTPUT_SCHEMA.md`, and follow the delegation
+  rules in `SKILL.md` — independently verify decision-critical documents yourself.
 
 ## STEP 5 — Write the outputs
 
@@ -56,6 +59,14 @@ Create an output folder `./kyb-reviews/` if it does not exist, then write two fi
 1. **`<entity_slug>_<YYYY-MM-DD>.json`** — the OUTPUT_SCHEMA JSON.
 2. **`<entity_slug>_<YYYY-MM-DD>.md`** — the reviewer report, rendered from the JSON using
    `REPORT_TEMPLATE.md`.
+
+**Validate the JSON before rendering the report:**
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/skills/kyb-completeness-check/validate_review.py" "./kyb-reviews/<entity_slug>_<YYYY-MM-DD>.json"
+```
+A non-zero exit means a proof-of-address claim skipped or contradicts the `poa_check` type
+gate. Fix the JSON from the documents and re-run until it passes — never render the report
+from a JSON that fails validation.
 
 Use today's date (run `date +%Y-%m-%d`). Derive `<entity_slug>` from the legal entity name
 (lowercase, hyphenated).

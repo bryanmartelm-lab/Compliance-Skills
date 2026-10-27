@@ -6,6 +6,23 @@ improvements ship in response to partner feedback.
 The format is based on [Keep a Changelog](https://keepachangelog.com/). Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — 2026-10-27
+### Added
+- **Constitutional documents always requested**: articles / memorandum / operating agreement,
+  named per jurisdiction and company type (lookup table included). Not ownership evidence, and
+  ownership evidence does not replace it. Absence is a soft gap → PARTIAL.
+- **Financial statements always requested, note-only**: balance sheet, income statement, or P&L.
+  Never gates the outcome; surfaced via the new `notes` field and in `missing_items.company`.
+- **`notes` field** in the output schema for non-gating items, plus a Notes section in the
+  reviewer report and standard client wording for financials (including on FULL outcomes).
+- **Internet bills accepted as proof of address**: a home internet bill (in the individual's
+  name) or an office internet bill (in the company's name) counts as a utility bill. Mobile
+  subscriptions are not accepted.
+- **`validate_review.py`**: blocks a review whose proof-of-address claims skip or contradict the
+  `poa_check` type-gate worksheet; `/kyb:review` runs it before rendering the report.
+- **`kyb-document-reviewer` agent**: optional document-reader subagent for large packages,
+  returning a per-claim evidence log for the orchestrator to verify.
+
 ## [0.2.0] — 2026-07-09
 ### Added
 - **Identity capture-medium gate**: identity documents are accepted only as an original

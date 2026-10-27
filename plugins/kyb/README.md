@@ -12,7 +12,14 @@ plus structured JSON. Runs entirely on your own Claude — no external services.
 ## Requirements
 
 - Claude Code, signed in (Pro / Max / Team or API key) — the review runs on your usage.
-- Python 3 on PATH (zip extraction only).
+- Python 3 on PATH (zip extraction and the review validator).
+
+## What's included
+
+- `skills/kyb-completeness-check/` — rulebook (`SKILL.md`), output schema, report template,
+  zip extractor, `validate_review.py` (enforces the proof-of-address type gate), and `lessons/`.
+- `agents/kyb-document-reviewer.md` — optional document-reader subagent for large packages.
+  Returns a per-claim evidence log; the main review still verifies decision-critical documents.
 
 ## Outputs
 
