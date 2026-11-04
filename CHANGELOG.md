@@ -6,6 +6,24 @@ improvements ship in response to partner feedback.
 The format is based on [Keep a Changelog](https://keepachangelog.com/). Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-11-04
+### Added
+- **One document ≠ multiple claims**: the claim chain runs separately per claim even when claims
+  share a file. A formation deed / articles evidences the position at incorporation only; current
+  ownership and directorship need a current registry extract or register of members.
+- **Documented vs inferred ownership split**: an inferred "100%" stays a hard failure; a fully
+  documented split whose only unnamed holder is below 25% is a soft gap (PARTIAL), with no KYC on
+  that holder.
+- **UK HMRC UTR document** required for UK limited companies (soft gap if missing), alongside the
+  actual Articles of Association.
+- **Source of Funds — assessing bank statements**: client flow on payments / MSB / on-ramp accounts
+  is turnover, not revenue; ask for invoices reconciling to credits with both legs, and chase
+  self-funding credits. UBO personal accounts leave scope once the company itself trades, subject
+  to proportionality and data minimisation.
+
+### Changed
+- SOFT GATING list now names missing tax-reference documents and a sub-25% unnamed holder.
+
 ## [0.3.0] — 2026-10-27
 ### Added
 - **Constitutional documents always requested**: articles / memorandum / operating agreement,
