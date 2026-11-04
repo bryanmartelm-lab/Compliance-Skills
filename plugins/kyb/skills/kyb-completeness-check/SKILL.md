@@ -305,6 +305,20 @@ However:
 - evaluate each claim independently
 - partial coverage ≠ full satisfaction
 
+## ONE DOCUMENT ≠ MULTIPLE CLAIMS
+
+Run the full `CLAIM → SUBJECT → EVIDENCE → VALIDATION → GAP` chain separately for EVERY claim,
+even when several claims point at the same file. A verdict never transfers from one claim to a
+neighbouring claim because they share evidence.
+
+- For each claim, name the specific document that proves THAT claim and state what in it proves
+  it. If you cannot, the claim is NOT_SUPPORTED.
+- A **constitutive / formation deed or articles** evidences the position **as at incorporation
+  only**. It cannot establish who CURRENTLY owns or manages the company — that needs a current
+  registry extract (e.g. Companies House, KVK, KBO/BCE, Handelsregister) or a current register of
+  members. A deed that fails `company_exists` does not then pass `ownership_100`,
+  `ubo_identified` or `directors_identified` untested.
+
 ---
 
 # SUBJECT–EVIDENCE BINDING RULE (CRITICAL)
@@ -436,6 +450,22 @@ Must:
 - include ownership %
 - identify UBOs ≥25%
 
+### Documented vs inferred split
+
+`ownership_100` asks whether the split is **fully accounted for by the documents**, not whether
+every holder is named.
+
+- **Inferred percentage → hard.** If "100%" is read off authorised shares, a single self-issued
+  certificate, or any figure no document actually prints, the split is not evidenced →
+  NOT_SUPPORTED (hard).
+- **Documented split with an unnamed holder below 25% → soft.** If the documents show the
+  complete split (e.g. 999 + 1 of 1,000 shares) and the only unnamed party is below the 25% UBO
+  threshold, that is a soft gap → PARTIAL. No KYC is required on that person. Still request the
+  identification as a soft item, and give the real reason from the documents — e.g. a unanimity
+  clause giving every partner a veto is *control by other means*, a UBO criterion independent of
+  the 25% test. Ask for the signed deed or share register that names the holder, not the UBO
+  register (which only captures >25% holders, control persons and senior managers).
+
 ---
 
 ## Director Structure
@@ -482,6 +512,21 @@ records as above → `ownership_100` = NOT_SUPPORTED (hard).
 
 ---
 
+## UK Tax Reference — HMRC UTR (company) (REQUIRED)
+
+Every UK limited company must supply its HMRC **Unique Taxpayer Reference** document (e.g. the
+HMRC "Welcome to Corporation Tax" / UTR letter). A tax number in system data or on a form is not
+the document. This is the UK analogue of the US EIN notice.
+
+- Missing → request it. Soft gap → PARTIAL, recorded in `soft_failures` and
+  `missing_items.company`.
+- A Companies House incorporation bundle (certificate + IN01 + memorandum + statement of capital +
+  PSC) typically contains NEITHER the UTR nor the actual Articles of Association — the IN01 line
+  "adopt the model articles" is not the Articles (see **Constitutional Documents**). Check for both
+  on every UK Ltd review.
+
+---
+
 ## Financial Statements (ALWAYS REQUESTED — NOTE ONLY, NEVER A GATE)
 
 Banking partners commonly require company financial statements before they will enable USD /
@@ -504,6 +549,44 @@ Acceptable (ANY ONE of):
 When absent, report it — do not silently drop it:
 - `notes` → `No financial statements provided (commonly required by banking partners for USD / SWIFT rails)`
 - `missing_items.company` → `Financial statements (balance sheet, income statement, or P&L)`
+
+---
+
+## Source of Funds — Assessing Bank Statements (SOFT GATING)
+
+### Client flow is not revenue
+
+On a payments / MSB / crypto on-ramp business, large money in and out of an account is
+**turnover — client money in transit — not source of funds**. Before crediting a statement as SoF,
+classify the account as **client-flow** or **operating**:
+
+- **Fee or commission line?** On a fiat→crypto on-ramp there usually never is one: the margin is a
+  spread embedded in the conversion rate, not a receipt. Zero hits for fee / commission / charge is
+  evidence — and it means "send the statement of the account where fee income lands" is the wrong
+  ask, because that account may not exist.
+- **Where do deposits go?** Third-party money in that leaves as crypto to the company's own wallets
+  or an exchange means the customer leg completes off-statement.
+- **Net position.** Opening ≈ closing balance against large throughput indicates flow-through.
+
+**The right ask** for a client-flow account: invoices that reconcile to the statement credits by
+reference, amount and date, showing **both legs** — the rate charged to the customer and the cost
+paid upstream — covering the period with a summary total, not a single sample. Also request an
+explanation for any **self-funding credits** (referenced as own account / self), which are not
+customer money and move the SoF question one step upstream.
+
+### UBO personal accounts — only while pre-revenue
+
+Requesting the UBO's personal accounts as company SoF is legitimate only while the company looks
+pre-revenue (nil income, negligible assets, funded solely by the owner). Once a statement **in the
+company's own name** shows real third-party trading, company SoF is answered from the company's own
+activity and the personal accounts — with every item hanging off them — leave scope. Re-check
+carried-forward `missing_items` against new evidence rather than repeating them by default.
+
+Before requesting anything personal, also apply:
+- **Proportionality** — do not chase paperwork for amounts immaterial to the company's scale.
+- **Data minimisation** — a company review should not collect the UBO's household spending, still
+  less that of a person who is not a party to the KYB. If a personal statement is genuinely
+  needed, state exactly what is needed from it.
 
 ---
 
@@ -716,6 +799,8 @@ Evaluation order (MANDATORY):
 - Company Proof of Address issues
 - Corporate documents outdated (>6 months)
 - Constitutional document missing (articles / memorandum / operating agreement or local equivalent)
+- Tax reference document missing (US EIN notice, US-resident UBO SSN/ITIN, UK HMRC UTR)
+- Ownership split documented, but a holder below 25% is unnamed
 - Source of Funds missing/incomplete
 
 Missing financial statements are NOT soft gating. They are note-only — see
